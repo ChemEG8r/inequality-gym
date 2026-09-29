@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inequality Gym</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>
+  :root {
+    --bg: #F7F6FC;
+    --grid: rgba(109, 40, 217, 0.06);
+    --surface: #FFFFFF;
+    --ink: #221A38;
+    --muted: #655C7E;
+    --accent: #6D28D9;
+    --accent-soft: rgba(109, 40, 217, 0.10);
+    --on-accent: #FFFFFF;
+    --good: #1E8A4C;
+    --good-soft: rgba(30, 138, 76, 0.12);
+    --bad: #D23B3B;
+    --bad-soft: rgba(210, 59, 59, 0.10);
+    --line: #E0DCEF;
+    --shadow: 0 2px 10px rgba(34, 26, 56, 0.07);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #131020;
+      --grid: rgba(167, 139, 250, 0.055);
+      --surface: #1D1930;
+      --ink: #EDEAF7;
+      --muted: #9C93B8;
+      --accent: #A78BFA;
+      --accent-soft: rgba(167, 139, 250, 0.14);
+      --on-accent: #131020;
+      --good: #4CC97E;
+      --good-soft: rgba(76, 201, 126, 0.14);
+      --bad: #F07A7A;
+      --bad-soft: rgba(240, 122, 122, 0.13);
+      --line: #2E2847;
+      --shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #131020;
+    --grid: rgba(167, 139, 250, 0.055);
+    --surface: #1D1930;
+    --ink: #EDEAF7;
+    --muted: #9C93B8;
+    --accent: #A78BFA;
+    --accent-soft: rgba(167, 139, 250, 0.14);
+    --on-accent: #131020;
+    --good: #4CC97E;
+    --good-soft: rgba(76, 201, 126, 0.14);
+    --bad: #F07A7A;
+    --bad-soft: rgba(240, 122, 122, 0.13);
+    --line: #2E2847;
+    --shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    color: var(--ink);
+    background:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+      var(--bg);
+    background-size: 28px 28px, 28px 28px, auto;
+    font-family: "Atkinson Hyperlegible", "Avenir Next", system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.5;
+    min-height: 100vh;
+    -webkit-text-size-adjust: 100%;
+  }
+  .wrap { max-width: 620px; margin: 0 auto; padding: 18px 14px 48px; }
+
+  h1, h2, h3 { font-family: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif; text-wrap: balance; margin: 0; }
+  .mono { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; font-variant-numeric: tabular-nums; }
+
+  .topbar { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 4px 2px 14px; }
+  .brand { font-family: "Bricolage Grotesque", system-ui, sans-serif; font-weight: 800; font-size: 22px; letter-spacing: -0.01em; }
+  .brand span { color: var(--accent); }
+  .navlink {
+    background: none; border: none; padding: 4px 2px; cursor: pointer;
+    color: var(--accent); font: inherit; font-weight: 700; text-decoration: underline; text-underline-offset: 3px;
+  }
+
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); padding: 20px 18px; margin-bottom: 14px; }
+
+  .hero h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.015em; line-height: 1.15; }
+  .hero p { color: var(--muted); margin: 10px 0 0; }
+  .topic-list { margin: 14px 0 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
+  .topic-list li { font-size: 14px; font-weight: 700; color: var(--accent); background: var(--accent-soft); border-radius: 999px; padding: 4px 12px; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; text-align: center;
+    font: inherit; font-weight: 700; cursor: pointer;
+    border-radius: 12px; padding: 13px 20px; min-height: 52px;
+    border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+    touch-action: manipulation;
+  }
+  .btn:focus-visible, .navlink:focus-visible, input:focus-visible, details summary:focus-visible, .opt:focus-visible, .symchip:focus-visible {
+    outline: 3px solid var(--accent); outline-offset: 2px;
+  }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-size: 17px; }
+  .btn-wide { width: 100%; }
+  .btn-danger { color: var(--bad); }
+  .btn-row { display: flex; gap: 10px; margin-top: 16px; }
+  .btn-row .btn { flex: 1; }
+
+  .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 4px; }
+  .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 11px 13px; }
+  .stat .num { font-family: "IBM Plex Mono", monospace; font-size: 23px; font-weight: 600; }
+  .stat .lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; }
+
+  /* ---------- Quiz ---------- */
+  .progress { position: sticky; top: 0; z-index: 5; background: var(--bg); padding: 8px 0 10px; }
+  .progress .label { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 5px; }
+  .bar { height: 8px; border-radius: 999px; background: var(--line); overflow: hidden; }
+  .bar > div { height: 100%; border-radius: 999px; background: var(--accent); transition: width 0.25s ease; }
+  @media (prefers-reduced-motion: reduce) { .bar > div { transition: none; } }
+
+  .qtopic { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 8px; }
+  .qtext { font-size: 18px; font-weight: 400; margin: 0 0 6px; }
+  .qmath { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 25px; font-weight: 600; margin: 10px 0 14px; overflow-x: auto; }
+
+  .opts { display: flex; flex-direction: column; gap: 9px; }
+  .opt {
+    font: inherit; font-size: 16px; font-weight: 700; text-align: left; cursor: pointer;
+    border: 2px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink);
+    padding: 12px 14px; min-height: 52px; touch-action: manipulation;
+  }
+  .opt.right { border-color: var(--good); background: var(--good-soft); color: var(--good); }
+  .opt.wrong { border-color: var(--bad); background: var(--bad-soft); color: var(--bad); }
+  .opt:disabled { cursor: default; opacity: 1; }
+  .opt.dim:disabled { opacity: 0.55; }
+  .opt svg { display: block; }
+
+  .ineq-answer { display: flex; flex-direction: column; gap: 10px; }
+  .sym-row { display: flex; align-items: center; gap: 8px; }
+  .varlabel { font-family: "IBM Plex Mono", monospace; font-size: 26px; font-weight: 600; padding-right: 2px; }
+  .symchip {
+    flex: 1; min-height: 54px; font-family: "IBM Plex Mono", monospace; font-size: 24px; font-weight: 600;
+    border: 2px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink); cursor: pointer;
+  }
+  .symchip[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+  .num-row { display: flex; gap: 8px; }
+  .neg-toggle {
+    flex: 0 0 60px; min-height: 54px; font-family: "IBM Plex Mono", monospace; font-size: 22px; font-weight: 600;
+    border: 2px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink); cursor: pointer;
+  }
+  .neg-toggle[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+  input.answer {
+    flex: 1; width: 100%; min-height: 54px; padding: 8px 14px;
+    font-family: "IBM Plex Mono", monospace; font-size: 22px; font-weight: 600;
+    color: var(--ink); background: var(--surface);
+    border: 2px solid var(--line); border-radius: 12px;
+  }
+  input.answer::placeholder { color: var(--muted); opacity: 0.6; font-weight: 500; font-family: "Atkinson Hyperlegible", sans-serif; font-size: 16px; }
+  .num-row .btn { flex: 0 0 auto; }
+
+  .feedback { min-height: 46px; border-radius: 10px; padding: 10px 12px; font-size: 15px; margin-top: 10px; }
+  .feedback.neutral { color: var(--muted); background: var(--surface); border: 1px dashed var(--line); }
+  .feedback.right { color: var(--good); background: var(--good-soft); font-weight: 700; }
+  .feedback.wrong { color: var(--bad); background: var(--bad-soft); font-weight: 700; }
+  .feedback .why { display: block; font-weight: 400; color: var(--ink); margin-top: 4px; }
+
+  /* ---------- Results / history / study ---------- */
+  .score-hero { text-align: center; padding: 26px 18px; }
+  .score-big { font-family: "IBM Plex Mono", monospace; font-size: 54px; font-weight: 600; line-height: 1; }
+  .score-msg { font-family: "Bricolage Grotesque", system-ui, sans-serif; font-size: 22px; font-weight: 800; margin-top: 10px; }
+  .score-sub { color: var(--muted); margin-top: 4px; }
+
+  .misslist { margin: 0; padding: 0; list-style: none; }
+  .misslist li { padding: 10px 4px; border-bottom: 1px solid var(--line); font-size: 15px; }
+  .misslist li:last-child { border-bottom: none; }
+  .misslist .q { font-weight: 700; display: block; }
+  .misslist .a { color: var(--bad); font-family: "IBM Plex Mono", monospace; }
+  .misslist .cor { color: var(--good); font-weight: 700; font-family: "IBM Plex Mono", monospace; }
+  .allgood { color: var(--good); font-weight: 700; padding: 10px 4px; }
+
+  .hrow { border-bottom: 1px solid var(--line); }
+  .hrow:last-child { border-bottom: none; }
+  .hrow summary { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 4px; cursor: pointer; list-style: none; }
+  .hrow summary::-webkit-details-marker { display: none; }
+  .hdate { font-size: 15px; flex: 1; }
+  .hdate small { display: block; color: var(--muted); }
+  .hscore { font-family: "IBM Plex Mono", monospace; font-weight: 600; font-size: 14px; color: var(--muted); }
+  .hpct { font-family: "IBM Plex Mono", monospace; font-weight: 600; border-radius: 999px; padding: 4px 11px; font-size: 14px; }
+  .pct-good { color: var(--good); background: var(--good-soft); }
+  .pct-mid  { color: var(--accent); background: var(--accent-soft); }
+  .pct-low  { color: var(--bad); background: var(--bad-soft); }
+  .hdetail { padding: 0 4px 12px; }
+
+  .trouble .tlabel { display: flex; justify-content: space-between; font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .trouble .tlabel .mono { color: var(--muted); font-weight: 600; font-size: 13px; }
+  .tbar { height: 8px; border-radius: 999px; background: var(--line); overflow: hidden; margin-bottom: 9px; }
+  .tbar > div { height: 100%; border-radius: 999px; background: var(--bad); }
+
+  .study h3 { font-size: 17px; margin: 16px 0 6px; color: var(--accent); }
+  .study h3:first-of-type { margin-top: 0; }
+  .study ul { margin: 0; padding-left: 20px; }
+  .study li { margin-bottom: 5px; font-size: 15.5px; }
+  .study b { color: var(--accent); }
+  .study .flip { color: var(--bad); font-weight: 700; }
+
+  .empty { color: var(--muted); text-align: center; padding: 26px 10px; }
+  .footnote { color: var(--muted); font-size: 13px; text-align: center; margin-top: 18px; }
+  #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 50; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand">Inequality <span>Gym</span></div>
+    <button class="navlink" id="navBtn"></button>
+  </div>
+  <div id="app"></div>
+</div>
+<canvas id="confetti" hidden></canvas>
+
+<script>
+"use strict";
+
+/* ================= helpers ================= */
+const rnd = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+const pick = arr => arr[rnd(0, arr.length - 1)];
+function nonzero(min, max) { let n = 0; while (n === 0) n = rnd(min, max); return n; }
+const NEG = "−";
+const fmt = n => (n < 0 ? NEG + Math.abs(n) : String(n));
+const money = n => "$" + n.toFixed(2).replace(/\.00$/, "");
+const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+const SYMS = ["<", "≤", ">", "≥"];
+const FLIP = { "<": ">", "≤": "≥", ">": "<", "≥": "≤" };
+const STRICT_SWAP = { "<": "≤", "≤": "<", ">": "≥", "≥": ">" };
+function cmp(x, sym, n) {
+  return sym === "<" ? x < n : sym === "≤" ? x <= n : sym === ">" ? x > n : x >= n;
+}
+const FLIPNOTE = "⚠️ Dividing (or multiplying) both sides by a NEGATIVE number flips the inequality sign!";
+
+/* ================= question generators =================
+   kind "ineq": answer is {sym, n} entered as symbol + number, plus truth(x) to self-check
+   kind "mc": opts[] with one correct */
+
+function qOneStepAddSub() {
+  const v = pick(["x", "a", "n"]);
+  const sym = pick(SYMS);
+  const n = rnd(-15, 15);
+  const a = rnd(2, 15);
+  const form = rnd(1, 3);
+  let mathTxt, why;
+  if (form === 1) {        // v + a sym b
+    const b = n + a;
+    mathTxt = `${v} + ${a} ${sym} ${fmt(b)}`;
+    why = `Subtract ${a} from both sides: ${v} ${sym} ${fmt(b)} ${NEG} ${a}, so ${v} ${sym} ${fmt(n)}. No flip — we never divided by a negative.`;
+  } else if (form === 2) { // v − a sym b
+    const b = n - a;
+    mathTxt = `${v} ${NEG} ${a} ${sym} ${fmt(b)}`;
+    why = `Add ${a} to both sides: ${v} ${sym} ${fmt(b)} + ${a}, so ${v} ${sym} ${fmt(n)}. No flip needed.`;
+  } else {                 // a + v sym b  (like −8 + x ≤ 16)
+    const c = nonzero(-12, 12);
+    const b = n + c;
+    mathTxt = `${fmt(c)} + ${v} ${sym} ${fmt(b)}`;
+    why = `${c < 0 ? "Add " + Math.abs(c) : "Subtract " + c} ${c < 0 ? "to" : "from"} both sides: ${v} ${sym} ${fmt(n)}. No flip needed.`;
+    return { t: "One-step", kind: "ineq", promptText: "Solve the inequality.", mathHTML: esc(mathTxt), varName: v,
+      answer: { sym, n }, why, truth: x => cmp(c + x, sym, b) };
+  }
+  const b = form === 1 ? n + a : n - a;
+  return { t: "One-step", kind: "ineq", promptText: "Solve the inequality.", mathHTML: esc(mathTxt), varName: v,
+    answer: { sym, n }, why, truth: x => cmp(form === 1 ? x + a : x - a, sym, b) };
+}
+
+function qOneStepMulDiv() {
+  const v = pick(["x", "a", "c"]);
+  const sym0 = pick(SYMS);
+  const negFlip = rnd(0, 1) === 1;  // half the time, force the flip trap
+  if (rnd(0, 1) === 0) {  // k·v sym b
+    const k = (negFlip ? -1 : 1) * rnd(2, 9);
+    const n = nonzero(-12, 12);
+    const b = k * n;
+    const sym = k < 0 ? FLIP[sym0] : sym0;
+    return {
+      t: "One-step", kind: "ineq", promptText: "Solve the inequality.",
+      mathHTML: esc(`${fmt(k)}${v} ${sym0} ${fmt(b)}`), varName: v,
+      answer: { sym, n },
+      why: `Divide both sides by ${fmt(k)}: ${v} ${sym} ${fmt(b)} ÷ ${fmt(k)} = ${fmt(n)}.` + (k < 0 ? ` ${FLIPNOTE} ${sym0} became ${sym}.` : " Positive divisor — the sign stays the same."),
+      truth: x => cmp(k * x, sym0, b)
+    };
+  } else {                // v/k sym b
+    const k = (negFlip ? -1 : 1) * rnd(2, 9);
+    const b = nonzero(-12, 12);
+    const n = k * b;
+    const sym = k < 0 ? FLIP[sym0] : sym0;
+    return {
+      t: "One-step", kind: "ineq", promptText: "Solve the inequality.",
+      mathHTML: esc(`${v}/${k < 0 ? "(" + NEG + Math.abs(k) + ")" : k} ${sym0} ${fmt(b)}`), varName: v,
+      answer: { sym, n },
+      why: `Multiply both sides by ${fmt(k)}: ${v} ${sym} ${fmt(b)} × ${fmt(k)} = ${fmt(n)}.` + (k < 0 ? ` ${FLIPNOTE} ${sym0} became ${sym}.` : " Positive multiplier — the sign stays the same."),
+      truth: x => cmp(x / k, sym0, b)
+    };
+  }
+}
+
+function qTwoStep() {
+  const v = "x";
+  const sym0 = pick(SYMS);
+  if (rnd(0, 1) === 0) {  // kx + a sym b
+    const k = pick([-1, 1, 1]) * rnd(2, 9);
+    const a = nonzero(-15, 15);
+    const n = nonzero(-10, 10);
+    const b = k * n + a;
+    const sym = k < 0 ? FLIP[sym0] : sym0;
+    const step1 = b - a;
+    return {
+      t: "Two-step", kind: "ineq", promptText: "Solve the inequality.",
+      mathHTML: esc(`${fmt(k)}${v} ${a < 0 ? NEG + " " + Math.abs(a) : "+ " + a} ${sym0} ${fmt(b)}`), varName: v,
+      answer: { sym, n },
+      why: `First ${a < 0 ? "add " + Math.abs(a) + " to" : "subtract " + a + " from"} both sides: ${fmt(k)}${v} ${sym0} ${fmt(step1)}. Then divide by ${fmt(k)}: ${v} ${sym} ${fmt(n)}.` + (k < 0 ? ` ${FLIPNOTE}` : ""),
+      truth: x => cmp(k * x + a, sym0, b)
+    };
+  } else {                // x/k − a sym b   (like 9 ≤ x/2 − 7, or x/(−3) − 2 > −4)
+    const k = pick([-1, 1, 1]) * rnd(2, 6);
+    const a = rnd(2, 12);
+    const m = nonzero(-9, 9);
+    const n = k * m;
+    const b = m - a;
+    const sym = k < 0 ? FLIP[sym0] : sym0;
+    return {
+      t: "Two-step", kind: "ineq", promptText: "Solve the inequality.",
+      mathHTML: esc(`${v}/${k < 0 ? "(" + NEG + Math.abs(k) + ")" : k} ${NEG} ${a} ${sym0} ${fmt(b)}`), varName: v,
+      answer: { sym, n },
+      why: `First add ${a} to both sides: ${v}/${fmt(k)} ${sym0} ${fmt(m)}. Then multiply by ${fmt(k)}: ${v} ${sym} ${fmt(n)}.` + (k < 0 ? ` ${FLIPNOTE}` : ""),
+      truth: x => cmp(x / k - a, sym0, b)
+    };
+  }
+}
+
+function qDistributive() {
+  const v = "x";
+  const sym0 = pick(SYMS);
+  const k = pick([-1, 1]) * rnd(2, 6);
+  const a = nonzero(-9, 9);
+  const n = nonzero(-9, 9);
+  const b = k * (n + a);
+  const sym = k < 0 ? FLIP[sym0] : sym0;
+  return {
+    t: "Distributive", kind: "ineq", promptText: "Solve the inequality.",
+    mathHTML: esc(`${fmt(k)}(${v} ${a < 0 ? NEG + " " + Math.abs(a) : "+ " + a}) ${sym0} ${fmt(b)}`), varName: v,
+    answer: { sym, n },
+    why: `Distribute: ${fmt(k)}${v} ${k * a < 0 ? NEG + " " + Math.abs(k * a) : "+ " + (k * a)} ${sym0} ${fmt(b)}. ${k * a < 0 ? "Add " + Math.abs(k * a) + " to" : "Subtract " + (k * a) + " from"} both sides: ${fmt(k)}${v} ${sym0} ${fmt(b - k * a)}. Divide by ${fmt(k)}: ${v} ${sym} ${fmt(n)}.` + (k < 0 ? ` ${FLIPNOTE}` : ""),
+    truth: x => cmp(k * (x + a), sym0, b)
+  };
+}
+
+/* number-line SVG: 5 ticks around val, colored ray + open/closed dot */
+function lineSVG(val, sym) {
+  const open = sym === "<" || sym === ">";
+  const right = sym === ">" || sym === "≥";
+  const cx = 140, y = 24, spacing = 46;
+  let ticks = "", labels = "";
+  for (let i = -2; i <= 2; i++) {
+    const x = cx + i * spacing;
+    ticks += `<line x1="${x}" y1="${y - 6}" x2="${x}" y2="${y + 6}" stroke="currentColor" stroke-width="1.5" opacity="0.55"/>`;
+    labels += `<text x="${x}" y="${y + 22}" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.8" font-family="IBM Plex Mono, monospace">${fmt(val + i)}</text>`;
+  }
+  const rayEnd = right ? 272 : 8;
+  const arrow = right
+    ? `<path d="M272 ${y} l-9 -5 v10 z" fill="var(--accent)"/>`
+    : `<path d="M8 ${y} l9 -5 v10 z" fill="var(--accent)"/>`;
+  return `<svg viewBox="0 0 280 50" width="100%" role="img" aria-label="number line">
+    <line x1="4" y1="${y}" x2="276" y2="${y}" stroke="currentColor" stroke-width="1.5" opacity="0.55"/>
+    ${ticks}${labels}
+    <line x1="${cx}" y1="${y}" x2="${rayEnd}" y2="${y}" stroke="var(--accent)" stroke-width="4"/>
+    ${arrow}
+    <circle cx="${cx}" cy="${y}" r="6.5" fill="${open ? "var(--surface)" : "var(--accent)"}" stroke="var(--accent)" stroke-width="3"/>
+  </svg>`;
+}
+
+function qGraph() {
+  const sym = pick(SYMS);
+  const n = rnd(-15, 15);
+  const c = nonzero(-12, 12);
+  const b = n + c;    // c + x sym b  →  x sym n
+  const variants = [
+    { html: lineSVG(n, sym), correct: true, key: "right" },
+    { html: lineSVG(n, FLIP[sym]), correct: false, key: "flip" },
+    { html: lineSVG(n, STRICT_SWAP[sym]), correct: false, key: "dot" },
+    { html: lineSVG(n, FLIP[STRICT_SWAP[sym]]), correct: false, key: "both" },
+  ];
+  return {
+    t: "Graphs", kind: "mc",
+    promptText: "Which number line best represents the solution?",
+    mathHTML: esc(`${fmt(c)} + x ${sym} ${fmt(b)}`),
+    opts: variants,
+    missText: `graph of x ${sym} ${fmt(n)}`,
+    why: `Solve first: ${c < 0 ? "add " + Math.abs(c) + " to" : "subtract " + c + " from"} both sides → x ${sym} ${fmt(n)}. ${sym === "<" || sym === ">" ? "Strict (" + sym + ") means an OPEN circle" : "\"or equal\" (" + sym + ") means a CLOSED dot"}, and the arrow points ${sym === "<" || sym === "≤" ? "LEFT (smaller numbers)" : "RIGHT (bigger numbers)"}.`,
+  };
+}
+
+function qPossibleValue() {
+  const sym = pick(SYMS);
+  const n = rnd(-12, 20);
+  let correct, wrongs;
+  if (sym === "<")       { correct = n - rnd(1, 3); wrongs = [n, n + 1, n + rnd(4, 8)]; }
+  else if (sym === "≤")  { correct = n;             wrongs = [n + 1, n + 2, n + rnd(5, 9)]; }
+  else if (sym === ">")  { correct = n + rnd(1, 3); wrongs = [n, n - 1, n - rnd(4, 8)]; }
+  else                   { correct = n;             wrongs = [n - 1, n - 2, n - rnd(5, 9)]; }
+  return {
+    t: "Graphs", kind: "mc",
+    promptText: `If x ${sym} ${fmt(n)}, which of these is a possible value for x?`,
+    mathHTML: "",
+    opts: [{ html: `<span class="mono">${fmt(correct)}</span>`, correct: true, key: String(correct) },
+      ...wrongs.map(w => ({ html: `<span class="mono">${fmt(w)}</span>`, correct: false, key: String(w) }))],
+    missText: `possible value when x ${sym} ${fmt(n)}`,
+    why: sym === "<" || sym === ">"
+      ? `${sym} is STRICT, so ${fmt(n)} itself does NOT count. ${fmt(correct)} makes x ${sym} ${fmt(n)} true.`
+      : `${sym} includes the boundary, so ${fmt(n)} itself works. ${fmt(correct)} makes x ${sym} ${fmt(n)} true.`,
+  };
+}
+
+/* ---- word problems: define a variable, write the inequality, solve ---- */
+const NAMES = ["Kendall", "Ryan", "Maya", "Jordan", "Ava", "Leo", "Sofia", "Marcus"];
+function qWord() {
+  const kind = rnd(1, 4);
+  if (kind === 1) {  // wage: rx + bonus ≥ target  → x ≥ n
+    const name = pick(NAMES);
+    const r = pick([7.5, 8.25, 8.75, 9.5, 10.25, 12.5]);
+    const bonus = pick([50, 75, 100, 125]);
+    const n = rnd(4, 12);
+    const target = r * n + bonus;
+    return {
+      t: "Word problems", kind: "ineq",
+      promptText: `${name} earns ${money(r)} per hour as a lifeguard, plus a ${money(bonus)} bonus for taking a training course. How many hours must ${name} work to earn AT LEAST ${money(target)}? (x = number of hours)`,
+      mathHTML: "", varName: "x",
+      answer: { sym: "≥", n },
+      why: `"At least" means ≥. Inequality: ${r}x + ${bonus} ≥ ${target}. Subtract ${bonus}: ${r}x ≥ ${(target - bonus).toFixed(2).replace(/\.00$/, "")}. Divide by ${r} (positive, no flip): x ≥ ${n}.`,
+      truth: x => r * x + bonus >= target
+    };
+  } else if (kind === 2) {  // rental: rx + fee < budget → x < n
+    const r = rnd(8, 18) * 5;
+    const fee = rnd(20, 40) * 5;
+    const n = rnd(4, 9);
+    const budget = r * n + fee;
+    return {
+      t: "Word problems", kind: "ineq",
+      promptText: `A van rents for ${money(r)} per day plus a ${money(fee)} insurance fee. How many days can the family rent the van if they want to spend LESS THAN ${money(budget)}? (x = number of days)`,
+      mathHTML: "", varName: "x",
+      answer: { sym: "<", n },
+      why: `"Less than" means <. Inequality: ${r}x + ${fee} < ${budget}. Subtract ${fee}: ${r}x < ${budget - fee}. Divide by ${r} (positive, no flip): x < ${n}.`,
+      truth: x => r * x + fee < budget
+    };
+  } else if (kind === 3) {  // savings: S − rx < B → x > n (the flip trap!)
+    const name = pick(NAMES);
+    const r = rnd(4, 10) * 5;
+    const n = rnd(8, 24);
+    const B = rnd(6, 12) * 50;
+    const S = B + r * n;
+    return {
+      t: "Word problems", kind: "ineq",
+      promptText: `${name} has ${money(S)} in savings but spends ${money(r)} per week. After how many weeks will the savings DROP BELOW ${money(B)}? (x = number of weeks)`,
+      mathHTML: "", varName: "x",
+      answer: { sym: ">", n },
+      why: `Inequality: ${S} ${NEG} ${r}x < ${B}. Subtract ${S}: ${NEG}${r}x < ${fmt(B - S)}. Divide by ${NEG}${r}: x > ${n}. ${FLIPNOTE}`,
+      truth: x => S - r * x < B
+    };
+  } else {  // diet: W − rx ≤ G → x ≥ n (flip trap)
+    const pet = pick(["Bo the dog", "Max the dog", "Peanut the pug", "Biscuit the beagle"]);
+    const r = rnd(2, 6);
+    const n = rnd(5, 14);
+    const G = rnd(50, 80);
+    const W = G + r * n;
+    return {
+      t: "Word problems", kind: "ineq",
+      promptText: `The vet says ${pet} should weigh AT MOST ${G} pounds. ${pet.split(" ")[0]} weighs ${W} pounds now and will lose ${r} pounds each week on a diet. After how many weeks will ${pet.split(" ")[0]} weigh ${G} pounds or less? (x = number of weeks)`,
+      mathHTML: "", varName: "x",
+      answer: { sym: "≥", n },
+      why: `"At most ${G}" means ≤ ${G}. Inequality: ${W} ${NEG} ${r}x ≤ ${G}. Subtract ${W}: ${NEG}${r}x ≤ ${fmt(G - W)}. Divide by ${NEG}${r}: x ≥ ${n}. ${FLIPNOTE}`,
+      truth: x => W - r * x <= G
+    };
+  }
+}
+
+/* A quiz mirrors the review sheet: one-step, two-step, distributive, graphs, word problems. */
+function buildQuiz() {
+  return [
+    qOneStepAddSub(), qOneStepAddSub(), qOneStepMulDiv(), qOneStepMulDiv(),
+    qTwoStep(), qTwoStep(), qDistributive(), qDistributive(),
+    qGraph(), qPossibleValue(), qWord(), qWord(),
+  ];
+}
+const QUIZ_LEN = 12;
+
+/* ================= storage (same pattern as the other apps) ================= */
+const KEY = "inequality-gym-history";
+const API = "/api/scores";
+let apiSynced = false;
+
+function loadLocal() {
+  try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch { return []; }
+}
+function saveLocal(h) {
+  try { localStorage.setItem(KEY, JSON.stringify(h)); } catch {}
+}
+function loadHistory() { return loadLocal(); }
+function postRecord(rec) {
+  return fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(rec) });
+}
+function addRecord(rec) {
+  const h = loadLocal(); h.push(rec); saveLocal(h);
+  postRecord(rec).catch(() => {});
+}
+function clearHistory() {
+  saveLocal([]);
+  if (apiSynced) fetch(API, { method: "DELETE" }).catch(() => {});
+}
+async function syncApi() {
+  try {
+    const res = await fetch(API);
+    if (!res.ok) throw new Error();
+    const server = await res.json();
+    if (!Array.isArray(server)) throw new Error();
+    const seen = new Set(server.map(r => r.id || r.date));
+    const missing = loadLocal().filter(r => !seen.has(r.id || r.date));
+    for (const r of missing) { try { await postRecord(r); } catch {} }
+    const merged = server.concat(missing).sort((a, b) => String(a.date).localeCompare(String(b.date)));
+    saveLocal(merged);
+    apiSynced = true;
+    if (state.screen === "home" || state.screen === "history") render();
+  } catch { apiSynced = false; }
+}
+
+/* ================= state ================= */
+const app = document.getElementById("app");
+const navBtn = document.getElementById("navBtn");
+let state = { screen: "home", quiz: [], idx: 0, right: 0, misses: [], locked: false };
+let timers = [];
+function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
+function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+
+function go(screen) {
+  clearTimers();
+  state.screen = screen;
+  if (screen === "home" || screen === "history") syncApi();
+  render();
+  window.scrollTo(0, 0);
+}
+
+navBtn.addEventListener("click", () => {
+  if (state.screen === "quiz") {
+    if (confirm("Quit this quiz? It won't be scored.")) go("home");
+  } else if (state.screen === "home") {
+    go("history");
+  } else {
+    go("home");
+  }
+});
+
+function pctClass(p) { return p >= 90 ? "pct-good" : p >= 70 ? "pct-mid" : "pct-low"; }
+
+function startQuiz() {
+  state.quiz = shuffle(buildQuiz());
+  state.idx = 0;
+  state.right = 0;
+  state.misses = [];
+  go("quiz");
+}
+
+function render() {
+  navBtn.textContent = state.screen === "quiz" ? "Quit" : state.screen === "home" ? "History" : "Home";
+  if (state.screen === "home") renderHome();
+  else if (state.screen === "quiz") renderQuiz();
+  else if (state.screen === "results") renderResults();
+  else if (state.screen === "study") renderStudy();
+  else renderHistory();
+}
+
+function renderHome() {
+  const h = loadHistory();
+  const best = h.length ? Math.max(...h.map(r => r.percent)) : null;
+  const avg = h.length ? Math.round(h.reduce((a, r) => a + r.percent, 0) / h.length) : null;
+  app.innerHTML = `
+    <div class="card hero">
+      <h1>Flip it when it's negative, VJ.</h1>
+      <p>Every quiz is ${QUIZ_LEN} freshly generated problems matching your Inequality Test Review — new numbers every single time, so it's never the same quiz twice.</p>
+      <ul class="topic-list">
+        <li>One-step</li><li>Two-step</li><li>Distributive</li><li>Number lines</li><li>Word problems</li>
+      </ul>
+      <div class="btn-row"><button class="btn btn-primary btn-wide" id="startBtn">Start a practice quiz</button></div>
+      <div class="btn-row"><button class="btn btn-wide" id="studyBtn">Read the cheat sheet</button></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat"><div class="num mono">${h.length}</div><div class="lbl">Quizzes</div></div>
+      <div class="stat"><div class="num mono">${best === null ? "–" : best + "%"}</div><div class="lbl">Best</div></div>
+      <div class="stat"><div class="num mono">${avg === null ? "–" : avg + "%"}</div><div class="lbl">Average</div></div>
+    </div>`;
+  document.getElementById("startBtn").addEventListener("click", startQuiz);
+  document.getElementById("studyBtn").addEventListener("click", () => go("study"));
+}
+
+function advance() {
+  clearTimers();
+  state.idx++;
+  if (state.idx >= state.quiz.length) finishQuiz();
+  else render();
+}
+
+function symDisplay(a) { return `${a.sym} ${fmt(a.n)}`; }
+
+function renderQuiz() {
+  const q = state.quiz[state.idx];
+  const n = state.quiz.length;
+  const isMC = q.kind === "mc";
+
+  let answerHTML;
+  let opts = [];
+  if (isMC) {
+    opts = shuffle(q.opts);
+    answerHTML = `<div class="opts">${opts.map((o, i) =>
+      `<button class="opt" data-i="${i}">${o.html}</button>`).join("")}</div>`;
+  } else {
+    answerHTML = `<div class="ineq-answer">
+        <div class="sym-row">
+          <span class="varlabel">${esc(q.varName)}</span>
+          ${SYMS.map(s => `<button class="symchip" data-sym="${s}" aria-pressed="false">${s}</button>`).join("")}
+        </div>
+        <div class="num-row">
+          <button class="neg-toggle" id="negBtn" aria-pressed="false" aria-label="Make the number negative">+/${NEG}</button>
+          <input class="answer" id="ansInput" type="text" inputmode="numeric" autocomplete="off" placeholder="number" aria-label="Number">
+          <button class="btn btn-primary" id="checkBtn">Check</button>
+        </div>
+      </div>`;
+  }
+
+  app.innerHTML = `
+    <div class="progress">
+      <div class="label"><span>Problem ${state.idx + 1} of ${n}</span><span>${esc(q.t)}</span></div>
+      <div class="bar"><div style="width:${((state.idx + 1) / n) * 100}%"></div></div>
+    </div>
+    <div class="card">
+      <div class="qtopic">${esc(q.t)}</div>
+      <p class="qtext">${esc(q.promptText)}</p>
+      ${q.mathHTML ? `<div class="qmath">${q.mathHTML}</div>` : ""}
+      ${answerHTML}
+      <div class="feedback neutral" id="feedback">${isMC ? "Tap the best answer." : `Pick a sign, then type the number — an answer looks like "${esc(q.varName)} &lt; 5".`}</div>
+    </div>`;
+
+  const feedback = document.getElementById("feedback");
+  const showWhy = (ok, corTxt) => {
+    feedback.className = "feedback " + (ok ? "right" : "wrong");
+    feedback.innerHTML = (ok ? "Correct! ✓" : `Not quite — the answer is <b class="mono">${esc(corTxt)}</b>.`) +
+      `<span class="why">${esc(q.why)}</span>` +
+      (ok ? "" : ` <button class="navlink" id="nextBtn">Next →</button>`);
+    if (!ok) document.getElementById("nextBtn").addEventListener("click", advance);
+  };
+
+  if (isMC) {
+    app.querySelectorAll(".opt").forEach(btn => {
+      btn.addEventListener("click", () => {
+        if (state.locked) return;
+        state.locked = true;
+        const chosen = opts[Number(btn.dataset.i)];
+        app.querySelectorAll(".opt").forEach((b, i) => {
+          b.disabled = true;
+          if (opts[i].correct) b.classList.add("right");
+          else if (b === btn) b.classList.add("wrong");
+          else b.classList.add("dim");
+        });
+        if (chosen.correct) {
+          state.right++;
+          showWhy(true);
+          later(() => { state.locked = false; advance(); }, 1500);
+        } else {
+          state.misses.push({ q: q.promptText + (q.mathHTML ? "  " + q.mathHTML.replace(/&lt;/g, "<").replace(/&amp;/g, "&") : ""), a: "picked the wrong choice", c: q.missText });
+          showWhy(false);
+          state.locked = false;
+        }
+      });
+    });
+  } else {
+    const input = document.getElementById("ansInput");
+    const negBtn = document.getElementById("negBtn");
+    const chips = [...app.querySelectorAll(".symchip")];
+    let chosenSym = null;
+    chips.forEach(chip => chip.addEventListener("click", () => {
+      chosenSym = chip.dataset.sym;
+      chips.forEach(c => c.setAttribute("aria-pressed", c === chip ? "true" : "false"));
+    }));
+    const normalize = neg => {
+      const digits = input.value.replace(/[^\d]/g, "");
+      input.value = (neg ? NEG : "") + digits;
+      negBtn.setAttribute("aria-pressed", neg ? "true" : "false");
+    };
+    negBtn.addEventListener("click", () => { normalize(!input.value.startsWith(NEG)); input.focus(); });
+    input.addEventListener("input", () => normalize(/[-−]/.test(input.value)));
+
+    const submit = () => {
+      if (state.locked) return;
+      const digits = input.value.replace(/[^\d]/g, "");
+      if (!chosenSym) { feedback.className = "feedback wrong"; feedback.textContent = "Pick a sign first: < ≤ > or ≥"; return; }
+      if (digits === "") { input.focus(); return; }
+      state.locked = true;
+      const num = Number((input.value.startsWith(NEG) ? "-" : "") + digits);
+      input.disabled = true;
+      document.getElementById("checkBtn").disabled = true;
+      chips.forEach(c => c.disabled = true);
+      const corTxt = `${q.varName} ${q.answer.sym} ${fmt(q.answer.n)}`;
+      if (chosenSym === q.answer.sym && num === q.answer.n) {
+        state.right++;
+        showWhy(true, corTxt);
+        later(() => { state.locked = false; advance(); }, 1500);
+      } else {
+        state.misses.push({
+          q: q.promptText === "Solve the inequality." ? q.mathHTML.replace(/&lt;/g, "<").replace(/&amp;/g, "&") : q.promptText,
+          a: `${q.varName} ${chosenSym} ${fmt(num)}`,
+          c: corTxt,
+        });
+        showWhy(false, corTxt);
+        state.locked = false;
+      }
+    };
+    document.getElementById("checkBtn").addEventListener("click", submit);
+    input.addEventListener("keydown", e => { if (e.key === "Enter") submit(); });
+  }
+  state.locked = false;
+}
+
+function finishQuiz() {
+  clearTimers();
+  const total = state.quiz.length;
+  const percent = Math.round((state.right / total) * 100);
+  const rec = {
+    id: Date.now() + "-" + Math.random().toString(36).slice(2, 8),
+    date: new Date().toISOString(),
+    right: state.right, total, percent,
+    misses: state.misses.map(m => ({ q: String(m.q).slice(0, 190), a: String(m.a).slice(0, 70), c: String(m.c).slice(0, 110) })),
+  };
+  addRecord(rec);
+  state.lastResult = rec;
+  go("results");
+}
+
+function missListHTML(misses) {
+  return misses.length
+    ? `<ul class="misslist">${misses.map(m =>
+        `<li><span class="q">${esc(m.q)}</span>
+         <span class="a">${esc(m.a)}</span> → <span class="cor">${esc(m.c)}</span></li>`).join("")}</ul>`
+    : `<div class="allgood">Nothing missed — perfect round!</div>`;
+}
+
+function renderResults() {
+  const r = state.lastResult;
+  const msg = r.percent === 100 ? "Perfect! Champion of the Gym! \u{1F3C6}"
+    : r.percent >= 90 ? "Excellent — you're ready!"
+    : r.percent >= 70 ? "Good work — review the misses below."
+    : "Keep training — check the cheat sheet, then go again.";
+  app.innerHTML = `
+    <div class="card score-hero">
+      <div class="score-big mono" style="color:${r.percent >= 90 ? "var(--good)" : r.percent >= 70 ? "var(--accent)" : "var(--bad)"}">${r.right}/${r.total}</div>
+      <div class="score-msg">${msg}</div>
+      <div class="score-sub">${r.percent}% · saved to history</div>
+      <div class="btn-row">
+        <button class="btn" id="studyBtn">Cheat sheet</button>
+        <button class="btn btn-primary" id="againBtn">New quiz</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2 style="font-size:20px">${r.misses.length ? "What you missed" : "Clean sheet"}</h2>
+      ${missListHTML(r.misses)}
+    </div>`;
+  document.getElementById("againBtn").addEventListener("click", startQuiz);
+  document.getElementById("studyBtn").addEventListener("click", () => go("study"));
+  if (r.percent >= 90) confetti();
+}
+
+function renderHistory() {
+  const h = loadHistory().slice().reverse();
+  const missCount = {};
+  h.forEach(r => (r.misses || []).forEach(m => { missCount[m.q] = (missCount[m.q] || 0) + 1; }));
+  const worst = Object.entries(missCount).sort((a, b) => b[1] - a[1]).slice(0, 6);
+  const maxMiss = worst.length ? worst[0][1] : 1;
+
+  const rows = h.map(r => {
+    const d = new Date(r.date);
+    const date = d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+    const time = d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+    return `<details class="hrow">
+        <summary>
+          <div class="hdate">${date}<small>${time}</small></div>
+          <span class="hscore">${r.right}/${r.total}</span>
+          <span class="hpct ${pctClass(r.percent)}">${r.percent}%</span>
+        </summary>
+        <div class="hdetail">${missListHTML(r.misses || [])}</div>
+      </details>`;
+  }).join("");
+
+  app.innerHTML = `
+    <div class="card">
+      <h2 style="font-size:22px">Quiz history</h2>
+      <p style="color:var(--muted);font-size:14px;margin:6px 0 4px">Tap a quiz to see exactly what was missed.</p>
+      ${h.length ? rows : `<div class="empty">No quizzes yet — take your first one!</div>`}
+    </div>
+    ${worst.length ? `<div class="card trouble"><h2 style="font-size:22px">Trouble problems</h2>
+      <p style="color:var(--muted);font-size:14px;margin:6px 0 10px">Missed most often — drill these before the test.</p>
+      ${worst.map(([qq, nn]) =>
+        `<div class="tlabel"><span style="max-width:75%">${esc(qq)}</span><span class="mono">${nn}×</span></div>
+         <div class="tbar"><div style="width:${(nn / maxMiss) * 100}%"></div></div>`).join("")}</div>` : ""}
+    <div class="btn-row"><button class="btn btn-primary btn-wide" id="startBtn">Start a practice quiz</button></div>
+    ${h.length ? `<div class="btn-row"><button class="btn btn-danger btn-wide" id="clearBtn">Clear history</button></div>` : ""}
+    <p class="footnote">${apiSynced
+      ? "Scores sync — open this same link on any phone or computer to see them."
+      : "History is saved on this device."}</p>`;
+
+  document.getElementById("startBtn").addEventListener("click", startQuiz);
+  const clearBtn = document.getElementById("clearBtn");
+  if (clearBtn) clearBtn.addEventListener("click", () => {
+    if (confirm("Delete all saved scores? This can't be undone.")) { clearHistory(); render(); }
+  });
+}
+
+function renderStudy() {
+  app.innerHTML = `
+    <div class="card study">
+      <h2 style="font-size:22px;margin-bottom:4px">The inequality cheat sheet</h2>
+      <h3>Solving = same as equations, with ONE big rule</h3>
+      <ul>
+        <li>Undo adding/subtracting first, then undo multiplying/dividing.</li>
+        <li><span class="flip">THE FLIP RULE: if you multiply or divide BOTH sides by a NEGATIVE number, flip the sign.</span> (−9a &lt; 54 → a &gt; −6)</li>
+        <li>Adding or subtracting never flips the sign. Dividing by a positive never flips it.</li>
+      </ul>
+      <h3>Graphing on a number line</h3>
+      <ul>
+        <li><b>&lt; or &gt;</b> (strict) → <b>OPEN circle</b> — the boundary number does NOT count.</li>
+        <li><b>≤ or ≥</b> → <b>CLOSED (filled) dot</b> — the boundary number DOES count.</li>
+        <li><b>&lt; or ≤</b> → arrow points <b>LEFT</b> (smaller). <b>&gt; or ≥</b> → arrow points <b>RIGHT</b> (bigger).</li>
+      </ul>
+      <h3>Word problem clue words</h3>
+      <ul>
+        <li><b>"at least"</b> → ≥ &nbsp;·&nbsp; <b>"at most" / "no more than"</b> → ≤</li>
+        <li><b>"less than" / "under" / "below"</b> → &lt; &nbsp;·&nbsp; <b>"more than"</b> → &gt;</li>
+        <li>Money problems: (rate)·x + fee, compare to the total.</li>
+        <li>Losing or spending: start − (rate)·x — and when you divide by that negative, <span class="flip">FLIP!</span></li>
+      </ul>
+      <div class="btn-row"><button class="btn btn-primary btn-wide" id="startBtn">I'm ready — quiz me</button></div>
+    </div>`;
+  document.getElementById("startBtn").addEventListener("click", startQuiz);
+}
+
+/* ================= confetti ================= */
+function confetti() {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const cv = document.getElementById("confetti");
+  cv.hidden = false;
+  cv.width = innerWidth; cv.height = innerHeight;
+  const ctx = cv.getContext("2d");
+  const colors = ["#6D28D9", "#A78BFA", "#1E8A4C", "#F5A623", "#D23B3B"];
+  const bits = Array.from({ length: 120 }, () => ({
+    x: Math.random() * cv.width, y: -20 - Math.random() * cv.height * 0.5,
+    vy: 2 + Math.random() * 3, vx: -1 + Math.random() * 2,
+    s: 5 + Math.random() * 6, r: Math.random() * Math.PI, vr: -0.1 + Math.random() * 0.2,
+    col: colors[Math.floor(Math.random() * colors.length)],
+  }));
+  let frames = 0;
+  (function loop() {
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    for (const b of bits) {
+      b.x += b.vx; b.y += b.vy; b.r += b.vr;
+      ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(b.r);
+      ctx.fillStyle = b.col; ctx.fillRect(-b.s / 2, -b.s / 2, b.s, b.s * 0.6);
+      ctx.restore();
+    }
+    if (++frames < 220) requestAnimationFrame(loop);
+    else { ctx.clearRect(0, 0, cv.width, cv.height); cv.hidden = true; }
+  })();
+}
+
+render();
+syncApi();
+</script>
+</body>
+</html>
